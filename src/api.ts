@@ -1,5 +1,7 @@
+import { geoCodeSchema } from "./schemas/geoCodeSchema";
 import { weatherSchema } from "./schemas/weatherSchema";
 import { formatWeatherData } from "./utils/weatherHelpers";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export async function getWeather({ lat, lon }: { lat: number; lon: number }) {
 	const params = new URLSearchParams({
@@ -61,11 +63,20 @@ export async function getWeather({ lat, lon }: { lat: number; lon: number }) {
 	}
 
 	const data = await res.json();
-    console.log(data)
+	console.log(data);
 	const validated = weatherSchema.parse(data); // ← Zod validates raw API shape
-    return formatWeatherData(validated); // ← transforms to clean FormattedWeather
+	return formatWeatherData(validated); // ← transforms to clean FormattedWeather
 }
 
+export async function getGeoCode(location: string) {
+	const response = await fetch(
+		`http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${API_KEY}`,
+	);
+
+	const data = await response.json();
+    console.log(data);
+	return geoCodeSchema.parse(data);
+}
 
 /* 
 export async function getWeather({ lat, lon }: { lat: number; lon: number }) {
