@@ -1,0 +1,9 @@
+    1. Weather API -> open-meteo.com
+        "https://api.open-meteo.com/v1/forecast?${params}"
+    2. Location kudutha Coordinates -> openweatherorg - "		`
+        http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${API_KEY}
+    3. Multiple layer map (Temp, Pressure, Humidity)
+        https://tile.openweathermap.org/map/${mapType}/{z}/{x}/{y}.png?appid=${API_KEY}
+    4. 
+        https://cloud.maptiler.com/maps/
+"
