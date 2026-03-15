@@ -64,7 +64,7 @@ export async function getWeather({ lat, lon }: { lat: number; lon: number }) {
 	}
 
 	const data = await res.json();
-	console.log(data);
+	//console.log(data);
 	const validated = weatherSchema.parse(data); // ← Zod validates raw API shape
 	return formatWeatherData(validated); // ← transforms to clean FormattedWeather
 }

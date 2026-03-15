@@ -2,9 +2,7 @@ import { Moon, Sun } from "lucide-react";
 import { Switch } from "./ui/switch";
 import { useTheme } from "./ThemeProvider";
 
-type Props = {};
-
-const LightDarkToggle = (props: Props) => {
+const LightDarkToggle = () => {
 
     const {theme, toggleTheme} = useTheme();
 	return (

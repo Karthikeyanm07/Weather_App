@@ -1,9 +1,7 @@
 import Card from "../cards/Card";
 import { Skeleton } from "../ui/skeleton";
 
-type Props = {};
-
-const CurrentSkeleton = ({}: Props) => {
+const CurrentSkeleton = () => {
 	return (
 		<Card
 			childrenClassName="flex flex-col items-center gap-6 2xl:justify-between"

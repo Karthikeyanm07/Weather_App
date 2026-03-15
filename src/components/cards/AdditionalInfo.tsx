@@ -1,7 +1,6 @@
 import Card from "./Card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getWeather } from "../../api";
-import UV from "../../assets/uv.svg?react";
 import type { Coords } from "../../types";
 import { Cloudy, Droplets, Gauge, Radiation, Wind } from "lucide-react";
 
