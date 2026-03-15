@@ -3,7 +3,8 @@ import "leaflet/dist/leaflet.css";
 import type { Coords } from "../types";
 import { useEffect } from "react";
 import { MaptilerLayer } from "@maptiler/leaflet-maptilersdk";
-const API_KEY = import.meta.env.VITE_API_KEY;
+const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY;
 
 type Props = {
 	coords: Coords;
@@ -24,7 +25,7 @@ const Map = ({ coords, onMapClick, mapType }: Props) => {
 			<MapClick onMapClick={onMapClick} coords={coords} />
 			<MapTileLayer />
 			<TileLayer
-                opacity={0.7}
+				opacity={0.7}
 				url={`https://tile.openweathermap.org/map/${mapType}/{z}/{x}/{y}.png?appid=${API_KEY}`}
 			/>
 			<Marker position={[lat, lon]} />
@@ -58,12 +59,14 @@ function MapTileLayer() {
 	useEffect(() => {
 		const tileLayer = new MaptilerLayer({
 			style: "basic-dark",
-			apiKey: "VAHPtCt6GiRxWPv50PZp",
+			apiKey: MAPTILER_API_KEY,
 		});
-        tileLayer.addTo(map);
+		tileLayer.addTo(map);
 
-        return () => {map.removeLayer(tileLayer)};
+		return () => {
+			map.removeLayer(tileLayer);
+		};
 	}, [map]);
 
-    return null;
+	return null;
 }

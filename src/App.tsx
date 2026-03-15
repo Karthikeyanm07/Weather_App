@@ -15,7 +15,7 @@ import DailySkeleton from "./components/skeletons/DailySkeleton";
 import HourlySkeleton from "./components/skeletons/HourlySkeleton";
 import AdditionalInfoSkeleton from "./components/skeletons/AdditionalInfoSkeleton";
 import SidePanel from "./components/SidePanel";
-import { Menu } from "lucide-react";
+import { CloudSun, Menu } from "lucide-react";
 import MobileHeader from "./components/MobileHeader";
 import LightDarkToggle from "./components/LightDarkToggle";
 
@@ -33,7 +33,10 @@ function App() {
 	//console.log(geoCodeData);
 
 	const onMapClick = (lat: number, lon: number) => {
-		setCoords({ lat, lon });
+		// Normalize coordinates: Leaflet can return lon > 180 on wrapped maps
+		const normalizedLon = ((((lon + 180) % 360) + 360) % 360) - 180;
+		const clampedLat = Math.max(-90, Math.min(90, lat));
+		setCoords({ lat: clampedLat, lon: normalizedLon });
 		setLocation("custom");
 	};
 	const coords =
@@ -48,22 +51,12 @@ function App() {
 		<>
 			<MobileHeader setIsSidePanelOpen={setIsSidePanelOpen} />
 			<div className="flex flex-col gap-8 pt-8 p-8 xs:pt-8 lg:w-[calc(100dvw-var(--sidebar-width))] 2xl:h-screen 2xl:min-h-[1120px] overflow-x-hidden">
-				<div className="flex flex-col gap-4 xs:flex-row xs:gap-8">
-					<div className="flex flex-col md:flex-row gap-2 md:gap-4">
-						<h1 className="text-2xl font-semibold">Location: </h1>
-						<LocationDropdown
-							location={location}
-							setLocation={setLocation}
-						/>
-					</div>
-					<div className="flex flex-col md:flex-row gap-2 md:gap-4">
-						<h1 className="text-2xl font-semibold whitespace-nowrap">
-							MapType:{" "}
-						</h1>
-						<MapTypeDropdown
-							mapType={mapType}
-							setMapType={setMapType}
-						/>
+				<div className="flex flex-col gap-4">
+				{/* Row 1: Branding + Controls */}
+				<div className="hidden xs:flex items-center gap-4">
+					<div className="flex items-center gap-2 shrink-0">
+						<CloudSun className="size-8 text-yellow-400" />
+						<span className="text-2xl font-bold tracking-tight">Nimbus</span>
 					</div>
 					<div className="flex items-center gap-4 ml-auto">
 						<div className="hidden xs:block">
@@ -77,6 +70,26 @@ function App() {
 						</button>
 					</div>
 				</div>
+				{/* Row 2: Dropdowns */}
+				<div className="flex flex-col gap-4 xs:flex-row xs:items-center xs:gap-6">
+					<div className="flex flex-col md:flex-row gap-2 md:gap-4 md:items-center">
+						<h2 className="text-lg font-semibold">Location: </h2>
+						<LocationDropdown
+							location={location}
+							setLocation={setLocation}
+						/>
+					</div>
+					<div className="flex flex-col md:flex-row gap-2 md:gap-4 md:items-center">
+						<h2 className="text-lg font-semibold whitespace-nowrap">
+							MapType:{" "}
+						</h2>
+						<MapTypeDropdown
+							mapType={mapType}
+							setMapType={setMapType}
+						/>
+					</div>
+				</div>
+			</div>
 				<div className="grid grid-cols-1 2xl:flex-1 2xl:min-h-0 md:grid-cols-2 2xl:grid-cols-4 2xl:grid-rows-4 gap-4">
 					<div className="relative h-120 2xl:h-auto col-span-1 md:col-span-2 2xl:col-span-4 2xl:row-span-2 order-1">
 						<Map
@@ -88,7 +101,7 @@ function App() {
 					</div>
 					<div className="col-span-1 2xl:row-span-2 order-2">
 						<Suspense fallback={<CurrentSkeleton />}>
-							<CurrentWeather coords={coords} />
+							<CurrentWeather coords={coords} location={location} />
 						</Suspense>
 					</div>
 					<div className="col-span-1 order-3 2xl:order-4 2xl:row-span-2">

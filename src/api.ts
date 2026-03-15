@@ -2,7 +2,7 @@ import { AirPollutionSchema } from "./schemas/airPollutionSchema";
 import { geoCodeSchema } from "./schemas/geoCodeSchema";
 import { weatherSchema } from "./schemas/weatherSchema";
 import { formatWeatherData } from "./utils/weatherHelpers";
-const API_KEY = import.meta.env.VITE_API_KEY;
+const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
 
 export async function getWeather({ lat, lon }: { lat: number; lon: number }) {
 	const params = new URLSearchParams({
@@ -71,7 +71,7 @@ export async function getWeather({ lat, lon }: { lat: number; lon: number }) {
 
 export async function getGeoCode(location: string) {
 	const response = await fetch(
-		`http://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${API_KEY}`,
+		`https://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${API_KEY}`,
 	);
 
 	const data = await response.json();
