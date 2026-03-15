@@ -34,15 +34,19 @@ const HourlyForecast = ({ coords }: Props) => {
 				return (
 					<div
 						key={hour.time}
-						className="flex flex-col items-center p-2"
+						className="flex flex-col 2xl:justify-between items-center p-2"
 					>
-						<p className="whitespace-nowrap">{time}</p>
+						<p className="whitespace-nowrap 2xl:scale-110">
+							{time}
+						</p>
 						<img
 							src={getWeatherIconUrl(icon)}
 							alt={description}
-							className="w-10 h-10"
+							className="w-10 h-10 2xl:size-10"
 						/>
-						<p>{Math.round(hour.temp)}°F</p>
+						<p className="2xl:scale-110">
+							{Math.round(hour.temp)}°F
+						</p>
 					</div>
 				);
 			})}

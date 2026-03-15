@@ -1,18 +1,15 @@
 import Card from "./Card";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getWeather } from "../../api";
-import Humidity from "../../assets/humidity.svg?react";
-import Cloud from "../../assets/cloud.svg?react";
-import Pressure from "../../assets/pressure.svg?react";
 import UV from "../../assets/uv.svg?react";
-import Wind from "../../assets/wind.svg?react";
 import type { Coords } from "../../types";
+import { Cloudy, Droplets, Gauge, Radiation, Wind } from "lucide-react";
 
 type Props = {
-    coords: Coords;
+	coords: Coords;
 };
 
-const AdditionalInfo = ({coords}: Props) => {
+const AdditionalInfo = ({ coords }: Props) => {
 	const { data } = useSuspenseQuery({
 		queryKey: ["weather", coords],
 		queryFn: () => getWeather({ lat: coords.lat, lon: coords.lon }),
@@ -20,13 +17,13 @@ const AdditionalInfo = ({coords}: Props) => {
 	return (
 		<Card
 			title="Additional Weather Info"
-			childrenClassName="flex flex-col gap-6"
+			childrenClassName="grid grid-cols-1 md:grid-cols-2 gap-8"
 		>
 			{rows.map(({ label, value, Icon }) => (
 				<div key={value} className="flex justify-between">
-					<div className="flex gap-10">
+					<div className="flex gap-4">
 						<span>{label}</span>
-						<Icon className="w-6 h-6 invert" />
+						<Icon className="w-6 h-6" />
 					</div>
 					<span>{data.current[value]}</span>
 				</div>
@@ -39,17 +36,17 @@ const rows = [
 	{
 		label: "Dew (°F)",
 		value: "dewPoint",
-		Icon: Humidity,
+		Icon: Droplets,
 	},
 	{
 		label: "Cloudiness (%)",
 		value: "cloudCover",
-		Icon: Cloud,
+		Icon: Cloudy,
 	},
 	{
 		label: "UV Index",
 		value: "uvi",
-		Icon: UV,
+		Icon: Radiation,
 	},
 	{
 		label: "Wind Direction ( ° )",
@@ -59,7 +56,7 @@ const rows = [
 	{
 		label: "Pressure (hPa)",
 		value: "pressure",
-		Icon: Pressure,
+		Icon: Gauge,
 	},
 ] as const;
 

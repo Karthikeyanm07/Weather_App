@@ -8,13 +8,16 @@ type Props = {
 	coords: Coords;
 };
 
-function DailyForecast({coords}: Props) {
+function DailyForecast({ coords }: Props) {
 	const { data } = useSuspenseQuery({
 		queryKey: ["weather", coords],
 		queryFn: () => getWeather({ lat: coords.lat, lon: coords.lon }),
 	});
 	return (
-		<Card title="Daily Forecast" childrenClassName="flex flex-col gap-4">
+		<Card
+			title="Daily Forecast"
+			childrenClassName="flex flex-col gap-[19px] 2xl:justify-between"
+		>
 			{data?.daily.map((day) => {
 				const { description, icon } = getWeatherInfo(
 					day.weatherCode,

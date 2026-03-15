@@ -2,7 +2,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { getWeather } from "../../api";
 import Card from "./Card";
 import { getWeatherIconUrl, getWeatherInfo } from "../../utils/weatherCode";
-import type { Coords } from "../../types";
+import type { Coords } from "../../types"; 
+
 
 type Props = {
     coords: Coords
@@ -20,14 +21,14 @@ const CurrentWeather = ({coords}: Props) => {
 	);
 	return (
 		<Card
-			childrenClassName="flex flex-col items-center gap-6"
+			childrenClassName="flex flex-col items-center gap-6 2xl:justify-between"
 			title="Current Forecast"
 		>
 			<div className="flex flex-col gap-2 items-center">
 				<h2 className="text-6xl font-semibold text-center">
 					{data.current.temp}°F
 				</h2>
-				<img src={getWeatherIconUrl(icon)} alt={description} />
+				<img src={getWeatherIconUrl(icon)} alt={description} className="w-[100px] h-[100px]" />
 				<h3 className="text-2xl mb-2">{description}</h3>
 			</div>
 			<div className="flex flex-col gap-2">

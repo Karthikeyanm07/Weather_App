@@ -14,11 +14,16 @@ import CurrentSkeleton from "./components/skeletons/CurrentSkeleton";
 import DailySkeleton from "./components/skeletons/DailySkeleton";
 import HourlySkeleton from "./components/skeletons/HourlySkeleton";
 import AdditionalInfoSkeleton from "./components/skeletons/AdditionalInfoSkeleton";
+import SidePanel from "./components/SidePanel";
+import { Menu } from "lucide-react";
+import MobileHeader from "./components/MobileHeader";
+import LightDarkToggle from "./components/LightDarkToggle";
 
 function App() {
 	const [coordinates, setCoords] = useState<Coords>({ lat: 80, lon: 50 });
 	const [location, setLocation] = useState("Tokyo");
 	const [mapType, setMapType] = useState("clouds_new");
+	const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
 	const { data: geoCodeData } = useQuery({
 		queryKey: ["geocode", location],
@@ -40,44 +45,75 @@ function App() {
 				};
 
 	return (
-		<div className="flex flex-col gap-8">
-			<div className="flex gap-8">
-				<div className="flex gap-4">
-					<h1 className="text-2xl font-semibold">Location: </h1>
-					<LocationDropdown
-						location={location}
-						setLocation={setLocation}
-					/>
+		<>
+			<MobileHeader setIsSidePanelOpen={setIsSidePanelOpen} />
+			<div className="flex flex-col gap-8 pt-8 p-8 xs:pt-8 lg:w-[calc(100dvw-var-(sidebar-width))] 2xl:h-screen 2xl:min-h-[1120px]">
+				<div className="flex flex-col gap-4 xs:flex-row xs:gap-8">
+					<div className="flex flex-col md:flex-row gap-2 md:gap-4">
+						<h1 className="text-2xl font-semibold">Location: </h1>
+						<LocationDropdown
+							location={location}
+							setLocation={setLocation}
+						/>
+					</div>
+					<div className="flex flex-col md:flex-row gap-2 md:gap-4">
+						<h1 className="text-2xl font-semibold whitespace-nowrap">
+							MapType:{" "}
+						</h1>
+						<MapTypeDropdown
+							mapType={mapType}
+							setMapType={setMapType}
+						/>
+					</div>
+					<div className="flex items-center gap-4 ml-auto">
+						<div className="hidden xs:block">
+							<LightDarkToggle />
+						</div>
+						<button
+							className="hidden xs:block"
+							onClick={() => setIsSidePanelOpen(true)}
+						>
+							<Menu className="size-6 lg:hidden" />
+						</button>
+					</div>
 				</div>
-				<div className="flex gap-4">
-					<h1 className="text-2xl font-semibold">Map Type: </h1>
-					<MapTypeDropdown
-						mapType={mapType}
-						setMapType={setMapType}
-					/>
+				<div className="grid grid-cols-1 2xl:flex-1 2xl:min-h-0 md:grid-cols-2 2xl:grid-cols-4 2xl:grid-rows-4 gap-4">
+					<div className="relative h-120 2xl:h-auto col-span-1 md:col-span-2 2xl:col-span-4 2xl:row-span-2 order-1">
+						<Map
+							coords={coords}
+							onMapClick={onMapClick}
+							mapType={mapType}
+						/>
+						<MapLegend mapType={mapType} />
+					</div>
+					<div className="col-span-1 2xl:row-span-2 order-2">
+						<Suspense fallback={<CurrentSkeleton />}>
+							<CurrentWeather coords={coords} />
+						</Suspense>
+					</div>
+					<div className="col-span-1 order-3 2xl:order-4 2xl:row-span-2">
+						<Suspense fallback={<DailySkeleton />}>
+							<DailyForecast coords={coords} />
+						</Suspense>
+					</div>
+					<div className="col-span-1 md:col-span-2 2xl:row-span-1 order-4 2xl:order-3">
+						<Suspense fallback={<HourlySkeleton />}>
+							<HourlyForecast coords={coords} />
+						</Suspense>
+					</div>
+					<div className="col-span-1 md:col-span-2 2xl:row-span-1 order-5">
+						<Suspense fallback={<AdditionalInfoSkeleton />}>
+							<AdditionalInfo coords={coords} />
+						</Suspense>
+					</div>
 				</div>
 			</div>
-			<div className="relative">
-				<Map
-					coords={coords}
-					onMapClick={onMapClick}
-					mapType={mapType}
-				/>
-				<MapLegend mapType={mapType} />
-			</div>
-			<Suspense fallback={<CurrentSkeleton />}>
-				<CurrentWeather coords={coords} />
-			</Suspense>
-			<Suspense fallback={<HourlySkeleton />}>
-				<HourlyForecast coords={coords} />
-			</Suspense>
-			<Suspense fallback={<DailySkeleton />}>
-				<DailyForecast coords={coords} />
-			</Suspense>
-			<Suspense fallback={<AdditionalInfoSkeleton /> }>
-				<AdditionalInfo coords={coords} />
-			</Suspense>
-		</div>
+			<SidePanel
+				coords={coords}
+				isSidePanelOpen={isSidePanelOpen}
+				setIsSidePanelOpen={setIsSidePanelOpen}
+			/>
+		</>
 	);
 }
 

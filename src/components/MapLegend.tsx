@@ -12,7 +12,7 @@ const MapLegend = ({ mapType }: Props) => {
 		.join(", ");
 	//console.log(gradientStops)
 	return (
-		<div className="absolute top-4 right-4 z-1000 w-96 rounded-xl shadow-lg bg-background/70 p-4 border border-accent/70 flex flex-col gap-3">
+		<div className="absolute top-4 right-4 z-1000 w-48 xs:w-96 rounded-xl shadow-lg bg-background/70 p-4 border border-accent/70 flex flex-col gap-3">
 			<h3 className="text-sm font-semibold text-foreground">
 				{data.title}
 			</h3>

@@ -6,13 +6,13 @@ type Props = {};
 const CurrentSkeleton = ({}: Props) => {
 	return (
 		<Card
-			childrenClassName="flex flex-col items-center gap-6"
+			childrenClassName="flex flex-col items-center gap-6 2xl:justify-between"
 			title="Current Forecast"
 		>
 			<div className="flex flex-col gap-2 items-center">
-				<Skeleton className="w-30 h-15" />
-				<Skeleton className="size-14 rounded-full" />
-				<Skeleton className="w-36 h-7" />
+				<Skeleton className="w-40 h-16" />
+				<Skeleton className="size-[100px] rounded-full" />
+				<Skeleton className="w-36 h-7 mb-2" />
 			</div>
 			<div className="flex flex-col gap-2">
 				<p className="text-xl text-center">Local Time:</p>
