@@ -18,6 +18,7 @@ import SidePanel from "./components/SidePanel";
 import { CloudSun, Menu } from "lucide-react";
 import MobileHeader from "./components/MobileHeader";
 import LightDarkToggle from "./components/LightDarkToggle";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function App() {
 	const [coordinates, setCoords] = useState<Coords>({ lat: 80, lon: 50 });
@@ -28,11 +29,18 @@ function App() {
 	const { data: geoCodeData } = useQuery({
 		queryKey: ["geocode", location],
 		queryFn: () => getGeoCode(location),
+		enabled: location !== "custom",
+		staleTime: 1000 * 60 * 60, // 1 hour (geocode data rarely changes)
 	});
 
 	//console.log(geoCodeData);
 
 	const onMapClick = (lat: number, lon: number) => {
+		// Prevent rapid clicks from triggering too many API calls (basic throttling)
+		const now = Date.now();
+		if (window._lastMapClick && now - window._lastMapClick < 1000) return;
+		window._lastMapClick = now;
+
 		// Normalize coordinates: Leaflet can return lon > 180 on wrapped maps
 		const normalizedLon = ((((lon + 180) % 360) + 360) % 360) - 180;
 		const clampedLat = Math.max(-90, Math.min(90, lat));
@@ -92,32 +100,42 @@ function App() {
 			</div>
 				<div className="grid grid-cols-1 2xl:flex-1 2xl:min-h-0 md:grid-cols-2 2xl:grid-cols-4 2xl:grid-rows-4 gap-4">
 					<div className="relative h-120 2xl:h-auto col-span-1 md:col-span-2 2xl:col-span-4 2xl:row-span-2 order-1">
-						<Map
-							coords={coords}
-							onMapClick={onMapClick}
-							mapType={mapType}
-						/>
+						<ErrorBoundary fallback={<div className="h-full flex items-center justify-center bg-muted rounded-xl">Map failed to load</div>}>
+							<Map
+								coords={coords}
+								onMapClick={onMapClick}
+								mapType={mapType}
+							/>
+						</ErrorBoundary>
 						<MapLegend mapType={mapType} />
 					</div>
 					<div className="col-span-1 2xl:row-span-2 order-2">
-						<Suspense fallback={<CurrentSkeleton />}>
-							<CurrentWeather coords={coords} location={location} />
-						</Suspense>
+						<ErrorBoundary>
+							<Suspense fallback={<CurrentSkeleton />}>
+								<CurrentWeather coords={coords} location={location} />
+							</Suspense>
+						</ErrorBoundary>
 					</div>
 					<div className="col-span-1 order-3 2xl:order-4 2xl:row-span-2">
-						<Suspense fallback={<DailySkeleton />}>
-							<DailyForecast coords={coords} />
-						</Suspense>
+						<ErrorBoundary>
+							<Suspense fallback={<DailySkeleton />}>
+								<DailyForecast coords={coords} />
+							</Suspense>
+						</ErrorBoundary>
 					</div>
 					<div className="col-span-1 md:col-span-2 2xl:row-span-1 order-4 2xl:order-3">
-						<Suspense fallback={<HourlySkeleton />}>
-							<HourlyForecast coords={coords} />
-						</Suspense>
+						<ErrorBoundary>
+							<Suspense fallback={<HourlySkeleton />}>
+								<HourlyForecast coords={coords} />
+							</Suspense>
+						</ErrorBoundary>
 					</div>
 					<div className="col-span-1 md:col-span-2 2xl:row-span-1 order-5">
-						<Suspense fallback={<AdditionalInfoSkeleton />}>
-							<AdditionalInfo coords={coords} />
-						</Suspense>
+						<ErrorBoundary>
+							<Suspense fallback={<AdditionalInfoSkeleton />}>
+								<AdditionalInfo coords={coords} />
+							</Suspense>
+						</ErrorBoundary>
 					</div>
 				</div>
 			</div>

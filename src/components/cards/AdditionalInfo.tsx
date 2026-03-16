@@ -12,6 +12,7 @@ const AdditionalInfo = ({ coords }: Props) => {
 	const { data } = useSuspenseQuery({
 		queryKey: ["weather", coords],
 		queryFn: () => getWeather({ lat: coords.lat, lon: coords.lon }),
+		staleTime: 1000 * 60 * 5, // 5 minutes
 	});
 	return (
 		<Card
