@@ -1,5 +1,19 @@
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+// Fix for default marker icon in production
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+const DefaultIcon = L.icon({
+	iconUrl: markerIcon,
+	shadowUrl: markerShadow,
+	iconSize: [25, 41],
+	iconAnchor: [12, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 import type { Coords } from "../types";
 import { useEffect } from "react";
 import { MaptilerLayer } from "@maptiler/leaflet-maptilersdk";
