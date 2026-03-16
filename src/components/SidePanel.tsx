@@ -1,16 +1,15 @@
 import { getAirPollution } from "@/api";
 import type { Coords } from "@/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Suspense, type Dispatch, type SetStateAction } from "react";
+import { Suspense, useEffect, type Dispatch, type SetStateAction } from "react";
 import Card from "./cards/Card";
 import { Slider } from "@/components/ui/slider";
 import clsx from "clsx";
 import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "./ui/tooltip";
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "./ui/popover";
 import { ChevronLeft, Info } from "lucide-react";
 import SidePanelSkeleton from "./skeletons/SidePanelSkeleton";
 type Props = {
@@ -20,21 +19,70 @@ type Props = {
 };
 const SidePanel = (props: Props) => {
 	const { isSidePanelOpen, setIsSidePanelOpen } = props;
+
+	useEffect(() => {
+		if (isSidePanelOpen) {
+			document.body.style.overflow = "hidden";
+		} else {
+			document.body.style.overflow = "";
+		}
+		return () => {
+			document.body.style.overflow = "";
+		};
+	}, [isSidePanelOpen]);
+
 	return (
-		<div
-			className={`
-				fixed top-0 right-0 h-screen shadow-md w-(--sidebar-width) z-1001 
-				bg-sidebar py-8 px-4 overflow-y-scroll transition-transform duration-300 lg:translate-x-0!
-				${isSidePanelOpen ? "translate-x-0" : "translate-x-full"}
-			`}
-		>
-			<button onClick={() => setIsSidePanelOpen(false)}>
-				<ChevronLeft className="size-8 -ml-2 lg:hidden" />
-			</button>
-			<Suspense fallback={<SidePanelSkeleton />}>
-				<AirPollution {...props} />
-			</Suspense>
-		</div>
+		<>
+			{/* Backdrop */}
+			<div
+				className={clsx(
+					"fixed inset-0 bg-black/50 z-1000 lg:hidden transition-opacity duration-300",
+					isSidePanelOpen
+						? "opacity-100 pointer-events-auto"
+						: "opacity-0 pointer-events-none",
+				)}
+				onClick={() => setIsSidePanelOpen(false)}
+			/>
+			{/* Panel */}
+			<div
+				className={clsx(
+					"fixed top-0 right-0 h-screen shadow-md w-(--sidebar-width) z-1001 bg-sidebar transition-transform duration-300 lg:translate-x-0! flex flex-col overscroll-contain",
+					isSidePanelOpen ? "translate-x-0" : "translate-x-full",
+				)}
+				onTouchStart={(e) => {
+					const touch = e.touches[0];
+					const startX = touch.clientX;
+					const panel = e.currentTarget;
+					
+					const onTouchMove = (moveEvent: TouchEvent) => {
+						const moveX = moveEvent.touches[0].clientX;
+						if (moveX - startX > 50) { // Swipe right detected
+							setIsSidePanelOpen(false);
+							panel.removeEventListener("touchmove", onTouchMove as unknown as EventListener);
+						}
+					};
+					
+					panel.addEventListener("touchmove", onTouchMove as unknown as EventListener, { passive: true });
+					panel.addEventListener("touchend", () => {
+						panel.removeEventListener("touchmove", onTouchMove as unknown as EventListener);
+					}, { once: true });
+				}}
+			>
+				<div className="sticky top-0 bg-sidebar/80 backdrop-blur-md z-10 px-4 py-4 flex items-center lg:hidden">
+					<button
+						onClick={() => setIsSidePanelOpen(false)}
+						className="p-1 hover:bg-accent rounded-full transition-colors"
+					>
+						<ChevronLeft className="size-8" />
+					</button>
+				</div>
+				<div className="flex-1 overflow-y-auto px-4 py-4">
+					<Suspense fallback={<SidePanelSkeleton />}>
+						<AirPollution {...props} />
+					</Suspense>
+				</div>
+			</div>
+		</>
 	);
 };
 
@@ -52,16 +100,16 @@ function AirPollution({ coords }: Props) {
 			<h1 className="text-5xl font-semibold">{data.list[0].main.aqi}</h1>
 			<div className="flex items-center gap-2">
 				<h1 className="text-2xl font-semibold">AQI</h1>
-				<TooltipProvider>
-					<Tooltip>
-						<TooltipTrigger>
-							<Info className="size-4" />
-						</TooltipTrigger>
-						<TooltipContent className="z-2000">
-							<p className="max-w-xs">Air Quality Index</p>
-						</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
+				<Popover>
+					<PopoverTrigger>
+						<Info className="size-4" />
+					</PopoverTrigger>
+					<PopoverContent className="z-2000 w-64">
+						<p>
+							<strong>Air Quality Index:</strong> A measure of how polluted the air currently is.
+						</p>
+					</PopoverContent>
+				</Popover>
 			</div>
 			{Object.entries(data.list[0].components).map(
 				([airName, airValue]) => {
@@ -118,23 +166,16 @@ function AirPollution({ coords }: Props) {
 									<span className="text-lg font-bold capitalize">
 										{airName}
 									</span>
-									<TooltipProvider>
-										<Tooltip>
-											<TooltipTrigger>
-												<Info className="size-4" />
-											</TooltipTrigger>
-											<TooltipContent className="z-2000">
-												<p className="max-w-xs">
-													Concentration of{" "}
-													{
-														pollutantNameMapping[
-															airName.toUpperCase() as Pollutant
-														]
-													}
-												</p>
-											</TooltipContent>
-										</Tooltip>
-									</TooltipProvider>
+									<Popover>
+										<PopoverTrigger>
+											<Info className="size-4" />
+										</PopoverTrigger>
+										<PopoverContent className="z-2000 w-64">
+											<p>
+												<strong>{pollutantNameMapping[airName.toUpperCase() as Pollutant]}:</strong> Concentration level in the current area.
+											</p>
+										</PopoverContent>
+									</Popover>
 								</div>
 								<span className="text-lg font-semibold">
 									{airValue}
