@@ -11,6 +11,7 @@ import {
 	PopoverTrigger,
 } from "./ui/popover";
 import { ChevronLeft, Info } from "lucide-react";
+import React, { useState } from "react";
 import SidePanelSkeleton from "./skeletons/SidePanelSkeleton";
 type Props = {
 	coords: Coords;
@@ -100,16 +101,13 @@ function AirPollution({ coords }: Props) {
 			<h1 className="text-5xl font-semibold">{data.list[0].main.aqi}</h1>
 			<div className="flex items-center gap-2">
 				<h1 className="text-2xl font-semibold">AQI</h1>
-				<Popover>
-					<PopoverTrigger>
-						<Info className="size-4" />
-					</PopoverTrigger>
-					<PopoverContent className="z-2000 w-64">
+				<AutoClosePopover 
+					content={
 						<p>
 							<strong>Air Quality Index:</strong> A measure of how polluted the air currently is.
 						</p>
-					</PopoverContent>
-				</Popover>
+					}
+				/>
 			</div>
 			{Object.entries(data.list[0].components).map(
 				([airName, airValue]) => {
@@ -166,16 +164,13 @@ function AirPollution({ coords }: Props) {
 									<span className="text-lg font-bold capitalize">
 										{airName}
 									</span>
-									<Popover>
-										<PopoverTrigger>
-											<Info className="size-4" />
-										</PopoverTrigger>
-										<PopoverContent className="z-2000 w-64">
+									<AutoClosePopover 
+										content={
 											<p>
 												<strong>{pollutantNameMapping[airName.toUpperCase() as Pollutant]}:</strong> Concentration level in the current area.
 											</p>
-										</PopoverContent>
-									</Popover>
+										}
+									/>
 								</div>
 								<span className="text-lg font-semibold">
 									{airValue}
@@ -295,3 +290,30 @@ const pollutantNameMapping: Record<Pollutant, string> = {
 	NO: "Nitrogen monoxide",
 	NH3: "Ammonia",
 };
+
+/**
+ * A Popover wrapper that automatically closes after 5 seconds
+ */
+function AutoClosePopover({ content }: { content: React.ReactNode }) {
+	const [isOpen, setIsOpen] = useState(false);
+
+	useEffect(() => {
+		if (isOpen) {
+			const timer = setTimeout(() => setIsOpen(false), 3000);
+			return () => clearTimeout(timer);
+		}
+	}, [isOpen]);
+
+	return (
+		<Popover open={isOpen} onOpenChange={setIsOpen}>
+			<PopoverTrigger asChild>
+				<button className="focus:outline-hidden">
+					<Info className="size-4 text-muted-foreground hover:text-foreground transition-colors" />
+				</button>
+			</PopoverTrigger>
+			<PopoverContent className="z-2000 w-64 backdrop-blur-md bg-popover/90">
+				{content}
+			</PopoverContent>
+		</Popover>
+	);
+}
